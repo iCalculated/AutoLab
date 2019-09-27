@@ -56,16 +56,16 @@ frame_count = 1
 
 fout = open("data.csv", "w")
 fout.write("frame,x_position,y_position,x_velocity,y_velocity\n")
-while True:
+while vs.isOpened():
 	
 	# grab the current frame, then handle if we are using a
 	# VideoStream or VideoCapture object
 	frame = vs.read()
 	frame = frame[1] if args.get("Video File", False) else frame
 
-	# check to see if we have reached the end of the stream
 	if frame is None:
-		break
+            break;
+        
 
 	# resize the frame (so we can process it faster) and grab the
 	# frame dimensions
@@ -114,7 +114,7 @@ while True:
 
 	# show the output frame
 	cv2.imshow("Frame", frame)
-	key = cv2.waitKey(1) & 0xFF
+	key = cv2.waitKey(10) & 0xFF
 
 	# if the 's' key is selected, we are going to "select" a bounding
 	# box to track
