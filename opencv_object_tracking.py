@@ -1,3 +1,4 @@
+# Video procesing
 from imutils.video import VideoStream
 from imutils.video import FPS
 import argparse
@@ -6,10 +7,20 @@ import time
 import cv2
 from gooey import Gooey, GooeyParser
 
+# Data science
+import seaborn as sns 
+from matplotlib import pyplot as plt
+import pandas as pd
+sns.set_context("poster")
+sns.axes_style()
+sns.despine()
+from scipy import stats
+
 @Gooey(dump_build_config=True, program_name="MotionTracker")
 def get_args():
 	ap = GooeyParser(description="MotionLab but automatic.")
 	ap.add_argument('Video File', widget='FileChooser')
+	ap.add_argument('Width', default="-1")
 	ap.add_argument(
         '-t', '--tracker', default="kcf", choices=['kcf', 'csrt', 'boosting', 'mil', 'tld', 'medianflow', 'mosse'], help='OpenCV object tracker type')
 	return vars(ap.parse_args())
@@ -39,10 +50,12 @@ fps = None
 (last_x, last_y) = (None, None)
 data = {}
 
+width = int(args.get("Width"))
+
 frame_count = 1 
 
 fout = open("data.csv", "w")
-fout.write("frame,x_position, y_position,x_velocity,y_velocity\n")
+fout.write("frame,x_position,y_position,x_velocity,y_velocity\n")
 while True:
 	
 	# grab the current frame, then handle if we are using a
@@ -56,7 +69,8 @@ while True:
 
 	# resize the frame (so we can process it faster) and grab the
 	# frame dimensions
-	frame = imutils.resize(frame, width=500)
+	if width != -1:
+		frame = imutils.resize(frame, width=width)
 	(H, W) = frame.shape[:2]
 
 	# check to see if we are currently tracking an object
@@ -124,12 +138,34 @@ while True:
 # if we are using a webcam, release the pointer
 if not args.get("Video File", False):
 	vs.stop()
-
 # otherwise, release the file pointer
 else:
 	vs.release()
 
 # close all windows
 cv2.destroyAllWindows()
+
+# close csv 
+fout.close()
 for x in data:
 	print(f"{x}: {data.get(x)}")
+
+#### GRAPHING
+
+df = pd.read_csv('data.csv')
+
+for stat in ['x_position', 'y_position', 'x_velocity', 'y_velocity']:
+	# get coeffs of linear fit
+	slope, intercept, r_value, p_value, std_err = stats.linregress(df['frame'],df[stat])
+
+	# use line_kws to set line label for legend
+	ax = sns.regplot(x="frame", y=stat, data=df,
+	line_kws={'label':"y={0:.1f}x+{1:.1f}".format(slope,intercept)})
+
+	# plot legend
+	ax.legend()
+
+	sns.despine()
+	plt.show()
+
+	ax.get_figure().savefig(f"{stat}.png")

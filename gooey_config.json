@@ -93,6 +93,35 @@
                   "cmd": ""
                 }
               }
+            },
+            {
+              "id": "Width",
+              "type": "TextField",
+              "cli_type": "positional",
+              "required": true,
+              "data": {
+                "display_name": "Width",
+                "help": null,
+                "required": true,
+                "nargs": "",
+                "commands": [],
+                "choices": [],
+                "default": "-1",
+                "dest": "Width"
+              },
+              "options": {
+                "error_color": "#ea7878",
+                "label_color": "#000000",
+                "help_color": "#363636",
+                "full_width": false,
+                "validator": {
+                  "test": "user_input and not user_input.isspace()",
+                  "message": "This field is required"
+                },
+                "external_validator": {
+                  "cmd": ""
+                }
+              }
             }
           ],
           "groups": [],

@@ -103,5 +103,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Videos
+# Videos and Data Output
 *.mp4
+*.png
+*.csv
